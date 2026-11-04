@@ -1,0 +1,32 @@
+name: Supabase keep-alive
+
+on:
+  schedule:
+    # Cada 2 días a las 06:17 UTC (el plan Free pausa tras 7 días sin actividad).
+    - cron: "17 6 */2 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar a la función keepalive
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "Faltan los secretos SUPABASE_URL o SUPABASE_ANON_KEY."
+            exit 1
+          fi
+
+          curl --fail --silent --show-error \
+            --request POST \
+            "${SUPABASE_URL}/rest/v1/rpc/keepalive" \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            --header "Content-Type: application/json" \
+            --data '{}'
+
+          echo "Keep-alive correcto."
