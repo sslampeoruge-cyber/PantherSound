@@ -71,7 +71,7 @@ export default function ReportsPage() {
         contract.status !== "cancelado",
     );
     const totalContracted = rangeContracts.reduce(
-      (sum, contract) => sum + Number(contract.price),
+      (sum, contract) => sum + Number(contract.total),
       0,
     );
     const outstanding = rangeContracts.reduce(
@@ -95,7 +95,7 @@ export default function ReportsPage() {
         return {
           Fecha: payment.paid_at,
           Folio: contract?.folio ?? payment.contracts?.folio ?? "",
-          Cliente: contract?.client_name ?? "",
+          Contratante: contract?.client_name ?? "",
           Festejado: contract?.honoree_name ?? payment.contracts?.honoree_name ?? "",
           Monto: Number(payment.amount),
           Método: paymentMethodLabels[payment.method],
@@ -107,14 +107,14 @@ export default function ReportsPage() {
   );
 
   const exportCsv = () => {
-    const headers = ["Fecha", "Folio", "Cliente", "Festejado", "Monto", "Método", "Referencia", "Notas"];
+    const headers = ["Fecha", "Folio", "Contratante", "Festejado", "Monto", "Método", "Referencia", "Notas"];
     const lines = [headers.join(",")];
     exportRows.forEach((row) => {
       lines.push(
         [
           row.Fecha,
           row.Folio,
-          row.Cliente,
+          row.Contratante,
           row.Festejado,
           row.Monto,
           row.Método,
@@ -246,7 +246,7 @@ export default function ReportsPage() {
                 <tr>
                   <th>Fecha</th>
                   <th>Folio</th>
-                  <th>Cliente</th>
+                  <th>Contratante</th>
                   <th>Festejado</th>
                   <th className="text-right">Monto</th>
                   <th>Método</th>

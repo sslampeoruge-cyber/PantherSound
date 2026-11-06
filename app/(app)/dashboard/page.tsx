@@ -97,7 +97,7 @@ export default function DashboardPage() {
     );
 
     const totalContracted = activeContracts.reduce(
-      (sum, contract) => sum + Number(contract.price),
+      (sum, contract) => sum + Number(contract.total),
       0,
     );
 
@@ -224,12 +224,12 @@ export default function DashboardPage() {
                           {contract.honoree_name || contract.event_type || "Evento"}
                         </p>
                         <p className="truncate text-xs text-slate-500">
-                          {contract.client_name || "Sin cliente"} · {formatTime(contract.start_time)}
+                          {contract.client_name || "Sin contratante"} · {formatTime(contract.start_time)}
                           {contract.venue_name ? ` · ${contract.venue_name}` : ""}
                         </p>
                       </div>
                       <div className="hidden text-right sm:block">
-                        <p className="text-sm font-semibold text-slate-900">{money(contract.price)}</p>
+                        <p className="text-sm font-semibold text-slate-900">{money(contract.total)}</p>
                         <p className="text-xs text-slate-500">Resta {money(contract.remaining)}</p>
                       </div>
                       <StatusBadge status={contract.status} />
@@ -285,7 +285,7 @@ export default function DashboardPage() {
               <tr>
                 <th>Fecha</th>
                 <th>Folio</th>
-                <th>Cliente</th>
+                <th>Contratante</th>
                 <th>Festejado</th>
                 <th className="text-right">Precio</th>
                 <th className="text-right">Resta</th>
@@ -309,7 +309,7 @@ export default function DashboardPage() {
                     </td>
                     <td>{contract.client_name || "—"}</td>
                     <td>{contract.honoree_name || "—"}</td>
-                    <td className="text-right">{money(contract.price)}</td>
+                    <td className="text-right">{money(contract.total)}</td>
                     <td className="text-right">{money(contract.remaining)}</td>
                     <td>
                       <StatusBadge status={contract.status} />

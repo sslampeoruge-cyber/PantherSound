@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +16,6 @@ import {
   Loader2,
   Lock,
   Mail,
-  Music2,
   Wallet,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -57,15 +57,14 @@ export default function LoginPage() {
   return (
     <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl border border-line bg-white shadow-2xl shadow-violet-900/10 md:grid-cols-2">
       <div className="relative hidden flex-col justify-between bg-gradient-to-br from-violet-700 via-violet-800 to-slate-950 p-8 text-white md:flex">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
-            <Music2 className="h-6 w-6" />
-          </span>
-          <div>
-            <p className="text-lg font-bold">PantherSound</p>
-            <p className="text-xs uppercase tracking-[0.2em] text-violet-200">Luz y Sonido</p>
-          </div>
-        </div>
+        <Image
+          src="/logo.png"
+          alt="PantherSound Luz y Sonido"
+          width={192}
+          height={68}
+          className="h-auto w-48 rounded-xl"
+          priority
+        />
 
         <div>
           <h2 className="text-3xl font-bold leading-tight">
@@ -96,15 +95,14 @@ export default function LoginPage() {
 
       <div className="p-8 sm:p-10">
         <div className="mb-8 md:hidden">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
-              <Music2 className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-base font-bold text-slate-900">PantherSound</p>
-              <p className="text-[11px] uppercase tracking-widest text-slate-400">Luz y Sonido</p>
-            </div>
-          </div>
+          <Image
+            src="/logo.png"
+            alt="PantherSound Luz y Sonido"
+            width={150}
+            height={53}
+            className="h-auto w-36 rounded-lg"
+            priority
+          />
         </div>
 
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Iniciar sesión</h1>

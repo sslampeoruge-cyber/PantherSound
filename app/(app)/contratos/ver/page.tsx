@@ -297,8 +297,8 @@ function ContractDetailContent() {
 
   const meta = statusMeta[contract.status];
   const progress =
-    contract.price > 0
-      ? Math.min(100, Math.round((Number(contract.paid_total) / Number(contract.price)) * 100))
+    contract.total > 0
+      ? Math.min(100, Math.round((Number(contract.paid_total) / Number(contract.total)) * 100))
       : 0;
 
   return (
@@ -370,8 +370,13 @@ function ContractDetailContent() {
                 label="Horario"
                 value={`${formatTime(contract.start_time)} – ${formatTime(contract.end_time)}`}
               />
+              <DetailRow label="Calle 1" value={contract.address_line1 || "—"} />
+              <DetailRow label="Calle 2" value={contract.address_line2 || "—"} />
               <DetailRow label="Salón" value={contract.venue_name || "—"} />
-              <DetailRow label="Cliente" value={contract.client_name || "—"} />
+              <DetailRow
+                label="Contratante"
+                value={contract.contractor_name || contract.client_name || "—"}
+              />
               <DetailRow label="Teléfono" value={contract.client_phone || "—"} />
               <DetailRow label="Festejado" value={contract.honoree_name || "—"} />
               <DetailRow label="Tipo de evento" value={contract.event_type || "—"} />
@@ -387,9 +392,23 @@ function ContractDetailContent() {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <DetailRow label="Sonido" value={contract.sound_name || "—"} />
               <DetailRow label="Detalle" value={contract.sound_notes || "—"} />
-              <DetailRow label="Fotos" value={contract.photos ? "Sí" : "No"} />
+              <DetailRow
+                label="Fotos"
+                value={
+                  contract.photos
+                    ? `Sí${contract.photos_price > 0 ? ` · ${money(contract.photos_price)}` : ""}`
+                    : "No"
+                }
+              />
               <DetailRow label="Tipo de cuadro" value={contract.frame_name || "—"} />
-              <DetailRow label="Filmación" value={contract.filming ? "Sí" : "No"} />
+              <DetailRow
+                label="Filmación"
+                value={
+                  contract.filming
+                    ? `Sí${contract.filming_price > 0 ? ` · ${money(contract.filming_price)}` : ""}`
+                    : "No"
+                }
+              />
               <DetailRow label="Grabar en" value={contract.recording_location || "—"} />
             </div>
             {contract.observations ? (
@@ -677,8 +696,24 @@ function ContractDetailContent() {
             </h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-500">Precio</span>
+                <span className="text-slate-500">Precio sonido</span>
                 <span className="font-semibold text-slate-900">{money(contract.price)}</span>
+              </div>
+              {contract.photos_price > 0 ? (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-500">Fotos</span>
+                  <span className="font-semibold text-slate-900">{money(contract.photos_price)}</span>
+                </div>
+              ) : null}
+              {contract.filming_price > 0 ? (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-500">Filmación</span>
+                  <span className="font-semibold text-slate-900">{money(contract.filming_price)}</span>
+                </div>
+              ) : null}
+              <div className="flex items-center justify-between border-t border-line pt-3 text-sm">
+                <span className="font-medium text-slate-700">Total</span>
+                <span className="font-bold text-slate-900">{money(contract.total)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">Pagado</span>

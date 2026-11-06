@@ -6,16 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2, Save } from "lucide-react";
 import {
-  listClients,
   listFrameTypes,
   listSoundPackages,
   listVenues,
 } from "@/lib/api";
 import { getSupabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { todayISO } from "@/lib/format";
+import { money, todayISO } from "@/lib/format";
 import type {
-  Client,
   ContractRow,
   FrameType,
   SoundPackage,
@@ -24,7 +22,9 @@ import type {
 import { Alert } from "./ui";
 
 const schema = z.object({
-  client_id: z.string().min(1, "Selecciona un cliente"),
+  contractor_name: z.string().optional(),
+  address_line1: z.string().optional(),
+  address_line2: z.string().optional(),
   venue_id: z.string().optional(),
   event_date: z.string().min(1, "Selecciona la fecha del evento"),
   start_time: z.string().optional(),
@@ -35,8 +35,10 @@ const schema = z.object({
   sound_notes: z.string().optional(),
   price: z.number().min(0, "El precio no puede ser negativo"),
   photos: z.boolean(),
+  photos_price: z.number().min(0, "El precio no puede ser negativo"),
   frame_type_id: z.string().optional(),
   filming: z.boolean(),
+  filming_price: z.number().min(0, "El precio no puede ser negativo"),
   recording_location: z.string().optional(),
   observations: z.string().optional(),
   representative_name: z.string().optional(),
@@ -60,7 +62,6 @@ export function ContractForm({
   onCancel?: () => void;
 }) {
   const { user } = useAuth();
-  const [clients, setClients] = useState<Client[]>([]);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [sounds, setSounds] = useState<SoundPackage[]>([]);
   const [frames, setFrames] = useState<FrameType[]>([]);
@@ -76,7 +77,9 @@ export function ContractForm({
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      client_id: contract?.client_id ?? "",
+      contractor_name: contract?.contractor_name ?? contract?.client_name ?? "",
+      address_line1: contract?.address_line1 ?? "",
+      address_line2: contract?.address_line2 ?? "",
       venue_id: contract?.venue_id ?? "",
       event_date: contract?.event_date ?? todayISO(),
       start_time: contract?.start_time?.slice(0, 5) ?? "",
@@ -87,8 +90,10 @@ export function ContractForm({
       sound_notes: contract?.sound_notes ?? "",
       price: contract?.price ?? 0,
       photos: contract?.photos ?? false,
+      photos_price: contract?.photos_price ?? 0,
       frame_type_id: contract?.frame_type_id ?? "",
       filming: contract?.filming ?? false,
+      filming_price: contract?.filming_price ?? 0,
       recording_location: contract?.recording_location ?? "",
       observations: contract?.observations ?? "",
       representative_name: contract?.representative_name ?? "",
@@ -99,10 +104,9 @@ export function ContractForm({
   useEffect(() => {
     let active = true;
 
-    Promise.all([listClients(), listVenues(), listSoundPackages(), listFrameTypes()])
-      .then(([clientsData, venuesData, soundsData, framesData]) => {
+    Promise.all([listVenues(), listSoundPackages(), listFrameTypes()])
+      .then(([venuesData, soundsData, framesData]) => {
         if (!active) return;
-        setClients(clientsData);
         setVenues(venuesData);
         setSounds(soundsData);
         setFrames(framesData);
@@ -122,6 +126,12 @@ export function ContractForm({
   }, []);
 
   const selectedSoundId = watch("sound_package_id");
+  const showPhotos = watch("photos");
+  const showFilming = watch("filming");
+  const servicePrice = Number(watch("price")) || 0;
+  const photosPrice = showPhotos ? Number(watch("photos_price")) || 0 : 0;
+  const filmingPrice = showFilming ? Number(watch("filming_price")) || 0 : 0;
+  const total = servicePrice + photosPrice + filmingPrice;
 
   useEffect(() => {
     if (!selectedSoundId) return;
@@ -136,7 +146,9 @@ export function ContractForm({
     setServerError(null);
     try {
       const payload = {
-        client_id: values.client_id,
+        contractor_name: nullify(values.contractor_name),
+        address_line1: nullify(values.address_line1),
+        address_line2: nullify(values.address_line2),
         venue_id: nullify(values.venue_id),
         event_date: values.event_date,
         start_time: nullify(values.start_time),
@@ -147,8 +159,10 @@ export function ContractForm({
         sound_notes: nullify(values.sound_notes),
         price: Number(values.price) || 0,
         photos: values.photos,
+        photos_price: values.photos ? Number(values.photos_price) || 0 : 0,
         frame_type_id: nullify(values.frame_type_id),
         filming: values.filming,
+        filming_price: values.filming ? Number(values.filming_price) || 0 : 0,
         recording_location: nullify(values.recording_location),
         observations: nullify(values.observations),
         representative_name: nullify(values.representative_name),
@@ -188,37 +202,21 @@ export function ContractForm({
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
       {serverError ? <Alert tone="error">{serverError}</Alert> : null}
 
-      {clients.length === 0 ? (
-        <Alert tone="warning">
-          No hay clientes registrados. Primero agrega un cliente en la sección{" "}
-          <a href="/clientes/" className="font-semibold underline">
-            Clientes
-          </a>
-          .
-        </Alert>
-      ) : null}
-
       <section className="card p-5">
         <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">
-          Cliente y evento
+          Contratante y evento
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="label" htmlFor="client_id">
-              Cliente *
+            <label className="label" htmlFor="contractor_name">
+              Nombre del contratante
             </label>
-            <select id="client_id" className="input" {...register("client_id")}>
-              <option value="">Selecciona un cliente…</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.name}
-                  {client.phone ? ` · ${client.phone}` : ""}
-                </option>
-              ))}
-            </select>
-            {errors.client_id ? (
-              <p className="mt-1 text-xs text-red-600">{errors.client_id.message}</p>
-            ) : null}
+            <input
+              id="contractor_name"
+              className="input"
+              placeholder="Nombre de quien contrata"
+              {...register("contractor_name")}
+            />
           </div>
 
           <div>
@@ -232,17 +230,15 @@ export function ContractForm({
           </div>
 
           <div>
-            <label className="label" htmlFor="venue_id">
-              Salón
+            <label className="label" htmlFor="event_type">
+              Tipo de evento
             </label>
-            <select id="venue_id" className="input" {...register("venue_id")}>
-              <option value="">Sin salón</option>
-              {venues.map((venue) => (
-                <option key={venue.id} value={venue.id}>
-                  {venue.name}
-                </option>
-              ))}
-            </select>
+            <input
+              id="event_type"
+              className="input"
+              placeholder="Cumpleaños, boda, XV años…"
+              {...register("event_type")}
+            />
           </div>
 
           <div>
@@ -259,23 +255,56 @@ export function ContractForm({
             <input id="end_time" type="time" className="input" {...register("end_time")} />
           </div>
 
-          <div>
-            <label className="label" htmlFor="event_type">
-              Tipo de evento
-            </label>
-            <input
-              id="event_type"
-              className="input"
-              placeholder="Cumpleaños, boda, XV años…"
-              {...register("event_type")}
-            />
-          </div>
-
-          <div>
+          <div className="sm:col-span-2">
             <label className="label" htmlFor="honoree_name">
               Nombre del festejado
             </label>
             <input id="honoree_name" className="input" {...register("honoree_name")} />
+          </div>
+        </div>
+      </section>
+
+      <section className="card p-5">
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">
+          Dirección y salón
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="label" htmlFor="address_line1">
+              Calle 1
+            </label>
+            <input
+              id="address_line1"
+              className="input"
+              placeholder="Calle y número"
+              {...register("address_line1")}
+            />
+          </div>
+
+          <div>
+            <label className="label" htmlFor="address_line2">
+              Calle 2
+            </label>
+            <input
+              id="address_line2"
+              className="input"
+              placeholder="Colonia, referencia o segunda línea"
+              {...register("address_line2")}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="label" htmlFor="venue_id">
+              Salón
+            </label>
+            <select id="venue_id" className="input" {...register("venue_id")}>
+              <option value="">Sin salón</option>
+              {venues.map((venue) => (
+                <option key={venue.id} value={venue.id}>
+                  {venue.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </section>
@@ -349,23 +378,68 @@ export function ContractForm({
             />
           </div>
 
-          <label className="flex items-center gap-3 rounded-xl border border-line bg-slate-50/60 px-4 py-3 text-sm font-medium text-slate-700">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
-              {...register("photos")}
-            />
-            Incluye fotos
-          </label>
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 rounded-xl border border-line bg-slate-50/60 px-4 py-3 text-sm font-medium text-slate-700">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
+                {...register("photos")}
+              />
+              Incluye fotos
+            </label>
+            {showPhotos ? (
+              <div>
+                <label className="label" htmlFor="photos_price">
+                  Precio de fotos
+                </label>
+                <input
+                  id="photos_price"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  className="input"
+                  {...register("photos_price", { valueAsNumber: true })}
+                />
+                {errors.photos_price ? (
+                  <p className="mt-1 text-xs text-red-600">{errors.photos_price.message}</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
 
-          <label className="flex items-center gap-3 rounded-xl border border-line bg-slate-50/60 px-4 py-3 text-sm font-medium text-slate-700">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
-              {...register("filming")}
-            />
-            Incluye filmación
-          </label>
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 rounded-xl border border-line bg-slate-50/60 px-4 py-3 text-sm font-medium text-slate-700">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
+                {...register("filming")}
+              />
+              Incluye filmación
+            </label>
+            {showFilming ? (
+              <div>
+                <label className="label" htmlFor="filming_price">
+                  Precio de filmación
+                </label>
+                <input
+                  id="filming_price"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  className="input"
+                  {...register("filming_price", { valueAsNumber: true })}
+                />
+                {errors.filming_price ? (
+                  <p className="mt-1 text-xs text-red-600">{errors.filming_price.message}</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 sm:col-span-2">
+            <span className="text-sm font-medium text-slate-600">Total del contrato</span>
+            <span className="text-lg font-bold text-slate-900">{money(total)}</span>
+          </div>
         </div>
       </section>
 
@@ -412,7 +486,7 @@ export function ContractForm({
             Cancelar
           </button>
         ) : null}
-        <button type="submit" className="btn-primary" disabled={isSubmitting || clients.length === 0}>
+        <button type="submit" className="btn-primary" disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {contract ? "Guardar cambios" : "Crear contrato"}
         </button>

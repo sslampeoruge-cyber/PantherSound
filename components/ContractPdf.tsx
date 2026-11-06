@@ -215,11 +215,16 @@ export function ContractPdf({
               label="Horario"
               value={`${formatTime(contract.start_time)} a ${formatTime(contract.end_time)}`}
             />
+            <Field label="Calle 1" value={contract.address_line1 || "—"} />
+            <Field label="Calle 2" value={contract.address_line2 || "—"} />
             <Field label="Salón" value={contract.venue_name || "—"} />
             <Field label="Tipo de evento" value={contract.event_type || "—"} />
-            <Field label="Cliente" value={contract.client_name || "—"} />
+            <Field
+              label="Contratante"
+              value={contract.contractor_name || contract.client_name || "—"}
+            />
             <Field label="Nombre del festejado" value={contract.honoree_name || "—"} />
-            <Field label="Teléfono del cliente" value={contract.client_phone || "—"} />
+            <Field label="Teléfono" value={contract.client_phone || "—"} />
             <Field label="Fecha de firma" value={formatDate(contract.signed_at)} />
           </View>
         </View>
@@ -231,12 +236,20 @@ export function ContractPdf({
             <TableRow label="Detalle del sonido" value={contract.sound_notes || "—"} />
             <TableRow
               label="Fotos"
-              value={contract.photos ? "Sí incluye" : "No incluye"}
+              value={
+                contract.photos
+                  ? `Sí incluye${contract.photos_price > 0 ? ` · ${money(contract.photos_price)}` : ""}`
+                  : "No incluye"
+              }
             />
             <TableRow label="Tipo de cuadro" value={contract.frame_name || "—"} />
             <TableRow
               label="Filmación"
-              value={contract.filming ? "Sí incluye" : "No incluye"}
+              value={
+                contract.filming
+                  ? `Sí incluye${contract.filming_price > 0 ? ` · ${money(contract.filming_price)}` : ""}`
+                  : "No incluye"
+              }
             />
             <TableRow label="Grabar en" value={contract.recording_location || "—"} last />
           </View>
@@ -247,8 +260,24 @@ export function ContractPdf({
           <View style={styles.table}>
             <View style={{ padding: 8 }}>
               <View style={styles.moneyRow}>
-                <Text style={styles.moneyLabel}>Precio del servicio</Text>
+                <Text style={styles.moneyLabel}>Precio del servicio (sonido)</Text>
                 <Text style={styles.moneyValue}>{money(contract.price)}</Text>
+              </View>
+              {contract.photos_price > 0 ? (
+                <View style={styles.moneyRow}>
+                  <Text style={styles.moneyLabel}>Fotos</Text>
+                  <Text style={styles.moneyValue}>{money(contract.photos_price)}</Text>
+                </View>
+              ) : null}
+              {contract.filming_price > 0 ? (
+                <View style={styles.moneyRow}>
+                  <Text style={styles.moneyLabel}>Filmación</Text>
+                  <Text style={styles.moneyValue}>{money(contract.filming_price)}</Text>
+                </View>
+              ) : null}
+              <View style={styles.moneyRow}>
+                <Text style={styles.moneyLabel}>Total del contrato</Text>
+                <Text style={styles.moneyValue}>{money(contract.total)}</Text>
               </View>
               <View style={styles.moneyRow}>
                 <Text style={styles.moneyLabel}>Anticipos y abonos</Text>
@@ -294,7 +323,7 @@ export function ContractPdf({
             <View style={styles.signatureLine} />
             <Text style={styles.signatureRole}>CONTRATANTE</Text>
             <Text style={styles.signatureName}>
-              {contract.client_name || "Nombre y firma"}
+              {contract.contractor_name || contract.client_name || "Nombre y firma"}
             </Text>
           </View>
           <View style={styles.signature}>

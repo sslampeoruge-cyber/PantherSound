@@ -2,7 +2,6 @@ import { getSupabase } from "./supabase/client";
 import type {
   Attachment,
   Clause,
-  Client,
   ContractRow,
   FrameType,
   Payment,
@@ -33,16 +32,6 @@ export async function getContract(id: string): Promise<ContractRow | null> {
     .maybeSingle();
   check(error);
   return (data as ContractRow | null) ?? null;
-}
-
-export async function listClients(): Promise<Client[]> {
-  const { data, error } = await getSupabase()
-    .from("clients")
-    .select("*")
-    .is("deleted_at", null)
-    .order("name", { ascending: true });
-  check(error);
-  return (data ?? []) as Client[];
 }
 
 export async function listVenues(activeOnly = true): Promise<Venue[]> {

@@ -81,7 +81,7 @@ export default function ContractsPage() {
   const totals = filtered.reduce(
     (acc, contract) => {
       if (contract.status !== "cancelado") {
-        acc.price += Number(contract.price);
+        acc.price += Number(contract.total);
         acc.paid += Number(contract.paid_total);
         acc.remaining += Math.max(Number(contract.remaining), 0);
       }
@@ -131,7 +131,7 @@ export default function ContractsPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               className="input pl-9"
-              placeholder="Buscar folio, cliente, festejado…"
+              placeholder="Buscar folio, contratante, festejado…"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -186,7 +186,7 @@ export default function ContractsPage() {
                 <tr>
                   <th>Folio</th>
                   <th>Fecha</th>
-                  <th>Cliente</th>
+                  <th>Contratante</th>
                   <th>Festejado</th>
                   <th>Salón</th>
                   <th className="text-right">Precio</th>
@@ -204,7 +204,7 @@ export default function ContractsPage() {
                     <td>{contract.client_name || "—"}</td>
                     <td>{contract.honoree_name || "—"}</td>
                     <td>{contract.venue_name || "—"}</td>
-                    <td className="text-right">{money(contract.price)}</td>
+                    <td className="text-right">{money(contract.total)}</td>
                     <td className="text-right text-emerald-700">{money(contract.paid_total)}</td>
                     <td className="text-right text-amber-700">{money(contract.remaining)}</td>
                     <td>

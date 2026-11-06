@@ -71,7 +71,7 @@ export default function CalendarPage() {
           extendedProps: {
             folio: contract.folio,
             remaining: contract.remaining,
-            price: contract.price,
+            price: contract.total,
             status: contract.status,
           },
         };

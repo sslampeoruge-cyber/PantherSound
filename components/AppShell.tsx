@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
@@ -11,9 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Music2,
   ShieldCheck,
-  Users,
   X,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -32,7 +31,6 @@ const navItems: NavItem[] = [
   { href: "/dashboard", label: "Panel", icon: LayoutDashboard, roles: ["admin", "vendedor", "consulta"] },
   { href: "/calendario", label: "Calendario", icon: CalendarDays, roles: ["admin", "vendedor", "consulta"] },
   { href: "/contratos", label: "Contratos", icon: FileText, roles: ["admin", "vendedor", "consulta"] },
-  { href: "/clientes", label: "Clientes", icon: Users, roles: ["admin", "vendedor", "consulta"] },
   { href: "/catalogos", label: "Catálogos", icon: BookOpen, roles: ["admin", "vendedor", "consulta"] },
   { href: "/reportes", label: "Reportes", icon: BarChart3, roles: ["admin", "vendedor", "consulta"] },
   { href: "/usuarios", label: "Usuarios", icon: ShieldCheck, roles: ["admin"] },
@@ -68,14 +66,15 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <div className="flex h-full flex-col bg-slate-950 text-slate-300">
-      <div className="flex items-center gap-3 px-5 py-5">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-900/40">
-          <Music2 className="h-5 w-5" />
-        </span>
-        <div className="leading-tight">
-          <p className="text-sm font-bold tracking-wide text-white">PantherSound</p>
-          <p className="text-[11px] uppercase tracking-widest text-slate-500">Luz y Sonido</p>
-        </div>
+      <div className="flex items-center px-5 py-5">
+        <Image
+          src="/logo.png"
+          alt="PantherSound Luz y Sonido"
+          width={168}
+          height={60}
+          className="h-auto w-40 rounded-lg"
+          priority
+        />
       </div>
 
       <nav className="mt-2 flex-1 space-y-1 px-3">
@@ -144,12 +143,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
-              <Music2 className="h-4 w-4" />
-            </span>
-            <span className="text-sm font-bold text-slate-900">PantherSound</span>
-          </div>
+          <Image
+            src="/logo.png"
+            alt="PantherSound Luz y Sonido"
+            width={126}
+            height={45}
+            className="h-auto w-28 rounded-md"
+            priority
+          />
           <button
             type="button"
             className="btn-ghost h-9 w-9 p-0"

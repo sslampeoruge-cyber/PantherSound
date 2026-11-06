@@ -58,6 +58,9 @@ export interface ContractRow {
   id: string;
   folio: string;
   client_id: string | null;
+  contractor_name: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
   venue_id: string | null;
   event_date: string;
   start_time: string | null;
@@ -68,8 +71,10 @@ export interface ContractRow {
   sound_notes: string | null;
   price: number;
   photos: boolean;
+  photos_price: number;
   frame_type_id: string | null;
   filming: boolean;
+  filming_price: number;
   recording_location: string | null;
   observations: string | null;
   representative_name: string | null;
@@ -85,6 +90,7 @@ export interface ContractRow {
   venue_name: string | null;
   sound_name: string | null;
   frame_name: string | null;
+  total: number;
   paid_total: number;
   remaining: number;
   status: ContractStatus;
@@ -123,7 +129,9 @@ export interface Attachment {
 }
 
 export interface ContractFormValues {
-  client_id: string;
+  contractor_name: string;
+  address_line1: string;
+  address_line2: string;
   venue_id: string;
   event_date: string;
   start_time: string;
@@ -134,8 +142,10 @@ export interface ContractFormValues {
   sound_notes: string;
   price: number;
   photos: boolean;
+  photos_price: number;
   frame_type_id: string;
   filming: boolean;
+  filming_price: number;
   recording_location: string;
   observations: string;
   representative_name: string;
